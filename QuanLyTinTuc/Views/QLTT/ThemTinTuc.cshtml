@@ -1,0 +1,419 @@
+﻿
+@{
+    ViewBag.Title = "ThemTinTuc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <h1 class="ml-5">Quản lý tin tức</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-9">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="~/QLTT/DSTT">Quản lý tin tức</a></li>
+                    <li class="breadcrumb-item text-primary">Thêm tin tức</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<section class="content">
+    @*<div class="content-body">*@
+    <div class="container">
+
+        <div class="container-fluid">
+            @*<div class="row">*@
+            <!-- left column -->
+            @*<div class="col-lg-12">*@
+            <!-- general form elements -->
+            <div class="card">
+                <div class="card-header bg-gradient-purple">
+                    <h3 class="card-title">Thêm mới tin tức</h3>
+                </div>
+
+                <form action="url_server" method="post" id="frm_data">
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4 col-lg-5">
+                                <label for="txt_category">Chọn danh mục</label>
+                                <select class="form-control require" id="txt_category" name="txt_category">
+                                    <option hidden>Danh mục</option>
+                                    <option>Kinh tế</option>
+                                    <option>Chính trị</option>
+                                    <option>Xã hội</option>
+                                    <option>Văn hóa</option>
+                                    <option>Giáo dục</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="txt_title">Tiêu đề</label>
+                                    <input type="text" class="form-control require" id="txt_title" name="txt_title" placeholder="Tiêu đề">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="txt_key">Mô tả</label>
+                                    <input type="text" class="form-control require" id="txt_key" name="txt_key" placeholder="Mô tả">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label for="txt_image">Ảnh đại diện</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @*<input type="file" class="custom-file-input" id="txt_image" name="txt_image" onchange="document.getElementById('displayImage').scr = window.URL.createObjectURL(this.files[0])">*@
+                                            <input type="file" class="custom-file-input" id="txt_image" name="txt_image" />
+                                            <label class="custom-file-label" for="txt_image">Chọn ảnh</label>
+                                            @*<img id="displayImage" scr="" width="100" height="100" />*@
+                                        </div>
+                                        @*<div class="input-group-append">
+                                                <span class="input-group-text">Upload</span>
+                                            </div>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="summernote">Nội dung</label>
+                                <textarea id="summernote" class="form-control require" name="summernote"></textarea>
+                                @*<textarea id="content" name="content" hidden></textarea>*@
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <div id="div_noft"></div>
+                            <button type="button" class="btn btn-primary" id="btn_them">Thêm</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    @*</div>*@
+</section>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#summernote").summernote({
+            placeholder: 'Nội dung',
+            height: 200,
+        });
+
+        $(".note-editable").focusout(function () {
+            $("#summernote").val($(".note-editable").text());
+        });
+
+        $("#txt_image").click(function () {
+            bsCustomFileInput.init();
+        });
+
+        //$(".custom-file-input").on("change", function () {
+        //    var fileName = $(this).val().split("\\").pop();
+        //    $(this).sibling(".custom-file-label").addClass("selected").html(fileName);
+        //});
+
+        $("#btn_them").click(function () {
+
+            var input_require = $(".require");
+            var is_require_all = true;
+
+            var input_summernote = $("#summernote");
+            var is_summernote_all = true;
+
+            for (i = 0; i < input_require.length; i++) {
+                if (!$(input_require[i]).val()) {
+                    is_require_all = false;
+                }
+            }
+            for (j = 0; j < input_summernote.length; j++) {
+                if (!$(input_summernote[j]).val()) {
+                    is_summernote_all = false;
+                }
+            }
+
+            //$(".note-editable").focusout(function () {
+            //    $("#noidung").val($(".note-editable").text());
+            //    console.log($(".note-editable").text());
+            //});
+
+
+            if (is_require_all && is_summernote_all) {
+                var form = $('#frm_data')[0];
+                var formData = new FormData(form);
+                $.ajax(
+                    {
+                        type: "POST",
+                        //data: {id: $("#hosothisinh_id").html()},
+                        data: formData,
+                        //data: JSON.stringify(lst),
+                        contentType: "application/json; charset=utf-8",
+                        url: window.location.origin + '/QLTT/Add',
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        success: function (response) {
+                            //alert(response);
+                            $("#div_noft").html(response);
+                        },
+                        error: function (response) {
+                            alert("Xử lý thêm mới thất bại");
+                        }
+                    }
+                );
+            } else {
+                alert("Vui lòng điền dữ liệu bắt buộc");
+            }
+        });
+
+    });
+</script>
+
+@*//function stripTags(html) {
+    //    var doc = new DOMParser().parseFromString(html, 'text/html');
+    //    return doc.body.textContent || "";
+    //*@
+
+
+@*//var edit = function () {
+    //    $('.note-editor').find('textarea').attr('name', 'mytextarea');
+    //};*@
+
+@*//if (is_require_all) {
+    //    var form = $('#frm_data')[0];
+    //    var formData = new FormData(form);
+    //    $.ajax(
+    //        {
+    //            type: "POST",
+    //            //data: {id: $("#hosothisinh_id").html()},
+    //            data: formData,
+    //            //data: JSON.stringify(lst),
+    //            contentType: "application/json; charset=utf-8",
+    //            url: window.location.origin + '/QLTT/Add',
+    //            processData: false,
+    //            contentType: false,
+    //            cache: false,
+    //            success: function (response) {
+    //                //alert(response);
+    //                $("#div_noft").html(response);
+    //            },
+    //            error: function (response) {
+    //                alert("Xử lý thêm mới thất bại");
+    //            }
+    //        }
+    //    );
+    //} else {
+    //    alert("Vui lòng điền dữ liệu bắt buộc");
+    //}
+    ////var summernoteForm = $('#frm_data');
+    //var summernoteElement = $('#summernote');
+
+    //function summernoteValidator(summernoteForm.)
+
+    //function summernoteValidator = summernoteForm.validate({
+    //    errorElement: "div",
+    //    errorClass: "is-invalid",
+    //    validClass: "is-valid",
+    //    ignore: ':hidden:not(#summernote),.note-editable.card-block',
+    //    errorPlacement: function (error, element) {
+    //        // Add the `help-block` class to the error element
+    //        error.addClass("invalid-feedback");
+    //        console.log(element);
+    //        if (element.prop("role") === "textbox") {
+    //            error.insertAfter(element.siblings("label"));
+    //        } else if (element.hasId("#summernote")) {
+    //            error.insertAfter(element.siblings(".note-editor"));
+    //        } else {
+    //            error.insertAfter(element);
+    //        }
+    //    }
+    //})
+    //var summernoteForm = $(".form-validate-summernote");
+    //var summernoteElement = $("#summernote");*@
+
+
+@*//$('.note-editor').find('textarea').attr('name', 'mytextarea');
+    //$("#summernote").click(function () {
+    //    //var content = document.getElementsByClassName("note-editing-area")[0];
+    //    //console.log(content.innerHTML);
+    //    //$(".note-editable.card-body") = $('.summernote').code(content);
+
+    //});*@
+
+@*<script type="text/javascript">
+         $(document).ready(function () {
+            $('#summernote').summernote({
+                placeholder: 'Nội dung',
+                tabsize: 5,
+                height: 200,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'italic', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        });
+    </script>*@
+
+@*//function stripTags(html) {
+    //    var doc = new DOMParser().parseFromString(html, 'text/html');
+    //    return doc.body.textContent || "";
+    //*@
+
+@*// Get the content and strip tags
+    var content = document.getElementsByClassName("note-editable")[0];
+    var plainText = stripTags(content.innerHTML);
+
+    // Display the plain text
+    console.log(plainText);
+
+    //var content0 = document.getElementsByClassName("note-editor")[0];
+    //var content1 = document.getElementsByClassName("note-editable")[0];
+    //var content2 = document.getElementsByClassName("form-control")[0];
+    //var content2 = document.getElementsByClassName("note-status-output")[0];
+    //var content3 = document.getElementsByClassName("note-statusbar")[0];
+    //var content4 = document.getElementsByClassName("modal")[0];
+    //var content5 = document.getElementsByClassName("note-popover")[0];
+    //var content2 = document.getElementsByClassName("note-status-output")[0];
+    //var content2 = document.getElementsByClassName("note-status-output")[0];
+    //console.log("note-editor");
+    //console.log(content0.innerHTML);
+    //console.log("note-editable");
+    //console.log(content1.innerHTML);
+    //console.log("form-control");
+    //console.log(content2.innerHTML);
+    //console.log("note-statusbar");
+    //console.log(content3.innerHTML);
+    //console.log("modal");
+    //console.log(content4.innerHTML);
+    //console.log("note-popover");
+    //console.log(content5.innerHTML);
+    //console.log(content2.innerHTML);*@
+
+@*<div class="form-group">
+        @Html.LabelFor(model => model.content, htmlAttributes: new { @class = "control-label col-md-2" }}
+        <div class="col-md-10">
+            @Html.Editor("demoContent", new { htmlAttributes = new { @class = "form-control"}})
+            @Html.ValidationMessageFor(model => model.content, "", new { @class = "text-danger"}})
+            @Html.HiddenFor(model => model.content, new {Value = "okay" })
+        </div>
+    </div>*@
+
+
+
+@*//$("#summernote").on("summernote.init", function (e, layoutInfo) {
+    //    // get $editor element
+    //    var $editor = layoutInfo.editor();
+
+    //    // add id attribute in $editor element
+    //    $editor.attr('id', $(this).attr('id') + "-of-example");
+    //}).summernote(
+    //    // summernote options..
+    //);
+
+    //function filterElements() {
+    //    //var visibleSummernoteElements = $('.form-validate-summernote:not(:hidden)');
+
+    //    //var cardBlockElements = $('.note-editable.card-block');
+    //    var summernoteForm = $(".form-validate-summernote");
+    //    var summernoteElement = $(".summernote");
+
+    //    var summernoteValidator = summernoteForm.validate({
+    //        errorElement: "div",
+    //        errorClass: "is-invalid",
+    //        validClass: "is-valid",
+    //        ignore: ':hidden:not(.form-validate-summernote),.note-editable.card-block',
+    //        errorPlacement: function (error, element) {
+    //            // Add the `help-block` class to the error element
+    //            error.addClass("invalid-feedback");
+    //            console.log(element);
+    //            if (element.prop("type") === "checkbox") {
+    //                error.insertAfter(element.siblings("label"));
+    //            } else if (element.hasClass("summernote")) {
+    //                error.insertAfter(element.siblings(".note-editor"));
+    //            } else {
+    //                error.insertAfter(element);
+    //            }
+    //        }
+    //    });
+    //    //var combinedElements = visibleSummernoteElements.add(cardBlockElements);
+
+    //    //console.log('Number of elements:', combinedElements.length);
+
+    //    //combinedElements.each(function (index, element) {
+    //    //    console.log('Element: ', element);
+    //    //});
+    //}*@
+
+@*//var markupStr = $('#summernote').summernote('code');
+    //console.log(markupStr);
+
+    // Assuming you have a reference to your Summernote instance
+    //var summernoteInstance = $('#summernote').summernote();
+
+    //// Accessing data within the div with class 'note-editable'
+    //var editableContent = $('.note-editable').html();
+
+    //// Log the content to the console
+    //console.log('Editable Content:', editableContent);
+
+    //$("#frm_data .modal-body").html($(".note-editable").html());
+    //$("#myModal").modal("show");
+
+    //$("#summernote").html($(".note-editable").html());
+
+    //    var summernoteValidator = summernoteForm.validate({
+    //    errorElement: "div",
+    //    errorClass: "is-invalid",
+    //    validClass: "is-valid",
+    //    ignore: ':hidden:not(#summernote),.note-editable.card-block',
+    //    errorPlacement: function (error, element) {
+    //        // Add the `help-block` class to the error element
+    //        error.addClass("invalid-feedback");
+    //        console.log(element);
+    //        if (element.prop("role") === "textbox") {
+    //            error.insertAfter(element.siblings("label"));
+    //        } else if (element.hasId("#summernote")) {
+    //            error.insertAfter(element.siblings(".note-editor"));
+    //        } else {
+    //            error.insertAfter(element);
+    //        }
+    //    }
+    //})
+    //var summernoteInstance = $('#summernote').summernote("code");
+    //var editableContent = $('.note-editable').html();
+
+
+    //var sHTML = $('.summernote').code();
+    //var sHTML = $('.summernote').eq(1).code();
+    //$(".note-editable") = $('.summernote').code(sHTML);*@
+
+
+
+

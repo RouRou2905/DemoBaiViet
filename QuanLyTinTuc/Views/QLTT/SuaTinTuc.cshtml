@@ -1,0 +1,261 @@
+﻿
+@{
+    ViewBag.Title = "SuaTinTuc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <h1 class="ml-5">Quản lý tin tức</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-9">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="~/QLTT/DSTT">Quản lý tin tức</a></li>
+                    <li class="breadcrumb-item text-primary">Sửa tin tức</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<section class="content">
+    @*<div class="content-body">*@
+    <div class="container">
+
+        <div class="container-fluid">
+            @*<div class="row">*@
+            <!-- left column -->
+            @*<div class="col-lg-12">*@
+            <!-- general form elements -->
+            <div class="card">
+                <div class="card-header bg-gradient-purple">
+                    <h3 class="card-title">Sửa tin tức</h3>
+                </div>
+
+                <form action="url_server" method="post" id="frm_data">
+                    <input type="hidden" name="txt_id" id="txt_id" />
+                    
+                    <div class="card-body">
+
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4 col-lg-5">
+                                <label for="txt_category">Chọn danh mục</label>
+                                <select class="group require" id="txt_category" name="txt_category">
+                                    <option hidden>Danh mục</option>
+                                    <option>Kinh tế</option>
+                                    <option>Chính trị</option>
+                                    <option>Xã hội</option>
+                                    <option>Văn hóa</option>
+                                    <option>Giáo dục</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="txt_title">Tiêu đề</label>
+                                    <input type="text" class="form-control require" id="txt_title" name="txt_title" placeholder="Tiêu đề">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="txt_key">Mô tả</label>
+                                    <input type="text" class="form-control require" id="txt_key" name="txt_key" placeholder="Mô tả">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label for="txt_image">Ảnh đại diện</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="txt_image" name="txt_image">
+                                            @*<input type="file" class="custom-file-input" id="txt_img" name="txt_img" hidden>*@
+                                            <label class="custom-file-label" for="txt_image">Chọn ảnh</label>
+                                        </div>
+                                        @*<div class="input-group-append">
+            <span class="input-group-text">Upload</span>
+        </div>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="summernote">Nội dung</label>
+                                <textarea id="summernote" class="form-control require" name="summernote"></textarea>
+                                @*<textarea id="content" name="content" hidden></textarea>*@
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <div id="div_noft"></div>
+                            <button type="button" class="btn btn-success" id="btn_luu">Lưu</button>
+                            <button type="button" class="btn btn-danger" id="btn_huy">Hủy</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    @*</div>*@
+</section>
+
+
+<script>
+    $(document).ready(function () {
+
+        $("#summernote").summernote({
+            //placeholder: 'Nội dung',
+            height: 200,
+            //callbacks: {
+            //    onChange: function (contents, $editable) {
+            //        $('.note-editable').html(contents);
+            //    }
+            //}
+            //onChange: function (contents, $editable) {
+            //    console.log('onChange:', contents, $editable);
+            //    $('.save-btn').removeClass('btn-success').addClass('btn-danger');
+            //}
+        });
+
+        //$(".note-editable").focusout(function () {
+        //    $("#summernote").val($(".note-editable").text());
+        //    /*console.log($(".note-editable").text());*/
+        //});
+        //$(".note-editable").focusout(function () {
+        //    $("#summernote").val($(".note-editable").text());
+        //});
+
+        $("#txt_image").click(function () {
+            bscustomfileinput.init();
+        });
+
+        //function getContent() {
+        //    var content = $('#summernote').summernote('code');
+        //    console.log(content); // You can use 'content' as needed (e.g., sending it to the server).
+        //}
+
+        $(".note-editable").focusout(function () {
+            $("#summernote") = $(".note-editable");
+        });
+        
+
+        var url = new URL(window.location.href);
+        var number = url.searchParams.get("matin");
+
+        //trường hợp không rỗng
+        var formData = new FormData();
+        formData.append("matin", number);
+
+        $.ajax(
+            {
+                type: "POST",
+                data: formData,
+                contentType: "application/json; charset=utf-8",
+                url: window.location.origin + '/QLTT/get_TT_Info',
+                processData: false,
+                contentType: false,
+                cache: false,
+                success: function (response) {
+                    //alert(response);
+                    if (response.indexOf("Không tìm thấy") >= 0 || response.indexOf("thất bại") >= 0) {
+                        //trường hợp lỗi
+                        $("#div_noft").html(response);
+                    } else {
+                        //trường hợp tìm thấy sinh viên cần sửa
+                        /*console.log(response);*/
+                        var tt_obj = JSON.parse(response);
+
+
+                        $("#txt_id").val(tt_obj.id);
+                        $("#txt_category").val(tt_obj.category);
+                        $("#txt_title").val(tt_obj.title);
+                        $("#txt_key").val(tt_obj.script);
+                        $("#summernote").val(tt_obj.content);
+                        //($("#summernote").val($(".note-editable").text())).val(tt_obj.content);
+                        //$(".note-editable").val(tt_obj.content);
+                        //$("#content").val(tt_obj.content);
+                    }
+                },
+                error: function (response) {
+                    alert("Xử lý lấy thông tin tin tức cần sửa thất bại");
+                }
+            })
+
+
+        $("#btn_luu").click(function () {
+            var input_require = $(".require");
+            var is_require_all = true;
+
+            var input_summernote = $("#summernote");
+            var is_summernote_all = true;
+
+            for (i = 0; i < input_require.length; i++) {
+                if (!$(input_require[i]).val()) {
+                    is_require_all = false;
+                }
+            }
+            for (j = 0; j < input_summernote.length; j++) {
+                if (!$(input_summernote[j]).val()) {
+                    is_summernote_all = false;
+                }
+            }
+
+            if (is_require_all && is_summernote_all) {
+                //trường hợp không rỗng
+                var form = $('#frm_data')[0];
+                var formData = new FormData(form);
+                //console.log(window.location.origin + '/QLSV/Add');
+
+                $.ajax(
+                    {
+                        type: "POST",
+                        //data: {id: $("#hosothisinh_id").html()},
+                        data: formData,
+                        //data: JSON.stringify(lst),
+                        contentType: "application/json; charset=utf-8",
+                        url: window.location.origin + '/QLTT/Edit',
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        success: function (response) {
+                            //alert(response);
+                            $("#div_noft").html(response);
+                        },
+                        error: function (response) {
+                            alert("Xử lý cập nhật thông tin tin tức thất bại");
+                        }
+                    }
+                );
+            }
+            else {
+                //trường hợp mssv rỗng
+                alert("Vui lòng điền vào các trường dữ liệu bắt buộc");
+            }
+        });
+
+        $("#btn_huy").click(function () {
+
+        });
+ });
+
+        
+</script>
+
+
+

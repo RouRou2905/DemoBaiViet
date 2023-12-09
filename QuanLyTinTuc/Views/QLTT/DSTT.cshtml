@@ -1,0 +1,228 @@
+﻿@{
+    ViewBag.Title = "DanhSachTinTuc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-10">
+                <h1 class="ml-3">Danh sách tin tức</h1>
+            </div>
+        </div>
+
+        <div id="div_search" class="row">
+            <div class="col-sm-1 col-md-1 right"></div>
+            <div class="col-sm-3 col-md-4 right">
+                <input name="txt_search_val" id="txt_search_val" class="form-control" type="text" placeholder="Nhập giá trị tìm kiếm" />
+            </div>
+            <div class="col-sm-4 col-md-3">
+                <select id="slc_search_type" class="form-control">
+                    <option value="" hidden>Chọn tiêu chí tìm kiếm</option>
+                    <option value="danhmuc">Danh mục</option>
+                    <option value="tieude">Tiêu đề</option>
+                    <option value="mota">Mô tả</option>
+                </select>
+            </div>
+            <div class="col-sm-2 col-md-2 right"><button id="btn_search_action" class="btn btn-primary"><i class="fa fa-search"></i></button></div>
+            <div class="col-sm-2 col-md-2 right">
+                <a class="create-p" href="~/QLTT/ThemTinTuc">
+                    <i class="fas fa-pen-nib"></i>
+                    <span>Tạo tin</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item">Quản lí tin tức</li>
+                    <li class="breadcrumb-item">Danh sách tin tức</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.container-fluid -->
+
+<div class="container-fluid">
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example2" class="table table-hover ">
+                            <thead class="bg-gradient-purple">
+                                <tr>
+                                    <th style="width: 100px">Danh mục</th>
+                                    <th>Tiêu đề tin</th>
+                                    <th>Mô tả</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Ảnh đại diện</th>
+                                    <th style="width: 110px">Chức năng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl_data"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*/.card-body*@
+        @*/.card*@
+    </section>
+</div>
+
+<script>
+    function Delete_obj(number) {
+        if (confirm("Bạn có thực sự muốn xóa bản ghi có id = " + number + " này không?")) {
+            //xử lý xóa
+            /*alert("đồng ý xóa");*/
+
+            //trường hợp không rỗng
+            var formData = new FormData();
+            formData.append("matin", number);
+
+            $.ajax(
+                {
+                    type: "POST",
+                    data: formData,
+                    contentType: "application/json;charset=utf-8",
+                    url: window.location.origin + '/QLTT/Del_TT',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: function (response) {
+                        var rs = JSON.parse(response);
+                        alert(rs.ErrDesc);
+                        //refresh lại trang web để thấy thay đổi;
+                        window.location.href = "/QLTT/DSTT";
+                    },
+                    error: function (response) {
+                        alert("Xóa tin tức thất bại");
+                    }
+                }
+            );
+        }
+    };
+
+    //$(document).ready(function () {
+    //    $.ajax(
+    //        {
+    //            type: "POST",
+    //            contentType: "application/json; charset=utf-8",
+    //            url: window.location.origin + '/QLTT/get_All',
+    //            processData: false,
+    //            contentType: false,
+    //            cache: false,
+    //            success: function (response) {
+    //                var rs = JSON.parse(response);
+
+    //                if (rs.ErrCode == 1) {
+    //                    //trường hợp lấy dssv thành công
+    //                    console.log(rs.Data);
+    //                    var str = "";
+    //                    for (var i = 0; i < rs.Data.length; i++)
+    //                    {
+    //                        str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td> <img style ='height=100, width=100' src ='~/Content/dist/picture/" + rs.Data[i].imgName + "'> </td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-danger'> <i class='fa fa-trash'></i> </button> </td> </tr>";
+    //                    }
+    //                    //{
+    //                    //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].img + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-danger'> <i class='fa fa-trash'></i> </button> </td> </tr>";
+    //                    //}
+    //                    $("#tbl_data").html(str);
+    //                }
+    //                else {
+    //                    alert(rs.ErrDesc);
+    //                }
+    //            },
+    //            error: function (response) {
+    //                alert("Lấy danh sách tin tức thất bại");
+    //            }
+    //        }
+    //    );
+    //})
+
+    $(document).ready(function () {
+        $.ajax(
+            {
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                //url: window.location.origin + '/QLSV/get_All',
+                url: window.location.origin + '/QLTT/Search_TT',
+                processData: false,
+                contentType: false,
+                cache: false,
+                success: function (response) {
+                    var rs = JSON.parse(response);
+
+                    if (rs.ErrCode == 1) {
+                        //trường hợp lấy dssv thành công
+                        //console.log(rs.Data);
+                        var str = "";
+                        //for (var i = 0; i < rs.Data.length; i++) {
+                        //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td> <img src ='/picture/" + rs.Data[i].imgName + "'> </td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-danger'> <i class='fa fa-trash'></i> </button> </td> </tr>";
+                        //}
+                        for (var i = 0; i < rs.Data.length; i++) {
+                            str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-outline-danger border-0'> <i class='fa fa-trash'></i> </button> </td> </tr>";
+                        }
+                        $("#tbl_data").html(str);
+                    }
+                    else {
+                        alert(rs.ErrDesc);
+                    }
+                },
+                error: function (response) {
+                    alert("Lấy tin tức thất bại");
+                }
+            }
+        );
+
+        $("#btn_search_action").click(function () {
+            //alert($("#txt_search_val").val());
+            var search_type = $("#slc_search_type").val();
+            //if (!search_type) {
+            //    alert("Vui lòng chọn tiêu chí tìm kiếm");
+            //    return false;
+            //}
+
+            var formData = new FormData();
+            formData.append("search_val", $("#txt_search_val").val());
+            formData.append("search_type", search_type);
+
+            $.ajax(
+                {
+                    type: "POST",
+                    data: formData,
+                    contentType: "application/json; charset=utf-8",
+                    url: window.location.origin + '/QLTT/Search_TT',
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: function (response) {
+                        var rs = JSON.parse(response);
+
+                        if (rs.ErrCode == 1) {
+                            //trường hợp lấy dssv thành công
+                            //console.log(rs.Data);
+                            var str = "";
+                            for (var i = 0; i < rs.Data.length; i++) {
+                                str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-outline-danger border-0'> <i class='fa fa-trash'></i> </button> </td> </tr>";
+                            }
+                            $("#tbl_data").html(str);
+                        }
+                        else {
+                            alert(rs.ErrDesc);
+                        }
+                    },
+                    error: function (response) {
+                        alert("Xóa tin tức thất bại");
+                    }
+                }
+            );
+        })
+    })
+
+</script>
