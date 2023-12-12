@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
@@ -35,6 +36,10 @@
         </div>
 
         <div class="row">
+
+        </div>
+
+        <div class="row">
             <div class="col-lg-12 col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item">Quản lí tin tức</li>
@@ -42,6 +47,8 @@
                 </ol>
             </div>
         </div>
+
+
     </div>
 </div>
 
@@ -54,12 +61,13 @@
                 <div class="card">
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="example2" class="table table-hover ">
+                        <table id="post_list" class="table table-hover">
                             <thead class="bg-gradient-purple">
                                 <tr>
                                     <th style="width: 100px">Danh mục</th>
                                     <th>Tiêu đề tin</th>
                                     <th>Mô tả</th>
+                                    <th>Nội dung</th>
                                     <th>Ngày tạo</th>
                                     <th>Ảnh đại diện</th>
                                     <th style="width: 110px">Chức năng</th>
@@ -77,6 +85,24 @@
 </div>
 
 <script>
+
+    //$(document).ready(function () {
+    //    var table = $('#example').DataTable({
+    //        ajax: {
+    //            url: 'data.json', // Change this to your data source URL
+    //            dataSrc: ''
+    //        },
+    //        columns: [
+    //            { data: 'name' },
+    //            { data: 'age' }
+    //        ]
+    //    });
+    //});
+
+    
+
+    
+
     function Delete_obj(number) {
         if (confirm("Bạn có thực sự muốn xóa bản ghi có id = " + number + " này không?")) {
             //xử lý xóa
@@ -108,6 +134,316 @@
             );
         }
     };
+
+    $(document).ready(function () {
+
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: window.location.origin + '/QLTT/Search_TT',
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (response) {
+                var rs = JSON.parse(response);
+
+                if (rs.ErrCode == 1) {
+
+                    //"</td> <td>" + rs.Data[i].content +
+                    //var str = "";
+                    //for (var i = 0; i < rs.Data.length; i++) {
+                    //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td> <img style='height:50px; width:75px' src='/Content/dist/picture/" + rs.Data[i].imgName + "'></td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+                    //}
+                    $("#post_list").DataTable({
+                        data: rs.Data,
+                        //columns: str,
+                        columns: [
+                            { "data": "category" },
+                            { "data": "title" },
+                            { "data": "script" },
+                            { "data": "content" },
+                            { "data": "DateCreate" },
+                            {
+                                //"data": "imgName",
+                                "data": null,
+                                render: function (data, type, row) {
+                                    //return '<img src="' + data + '" alt="Image">';
+                                    return '<img style="height: 50px; width: 75px" src="/Content/dist/picture/' + row.imgName + '">';
+                                }
+                            },
+                            {
+                                "data": null,
+                                render: function (data, type, row) {
+                                    return '<a href="./SuaTinTuc?matin=' + row.id + '" class="btn btn-outline-warning border-0"><i class="fas fa-edit"></i></a>' +'<button type="button" onclick="Delete_obj(' + row.id + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button>';
+                                }
+                            }
+                        ],
+                        paging: false,
+                        info: false,
+                        searching: false,
+                        lengthChange: false,
+                        autoWidth: false,
+                        ordering: true,
+                        dom: 'Bfrtip',
+                        buttons: ['pdf', 'excel'],
+                        columnDefs: [
+                            { orderable: false, targets: [1, 2, 3, 5, 6] }
+                        ]
+                    });
+                    //$("#tbl_data").append(str);
+                }
+                else {
+                    alert(rs.ErrDesc);
+                }
+            },
+            error: function (response) {
+                alert("Lấy tin tức thất bại");
+            }
+        }
+        );
+
+        $("#btn_search_action").click(function () {
+            //alert($("#txt_search_val").val());
+            var search_type = $("#slc_search_type").val();
+            //if (!search_type) {
+            //    alert("Vui lòng chọn tiêu chí tìm kiếm");
+            //    return false;
+            //}
+
+            var formData = new FormData();
+            formData.append("search_val", $("#txt_search_val").val());
+            formData.append("search_type", search_type);
+
+            $.ajax(
+                {
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    url: '/QLTT/Search_TT',
+                    dataType: "JSON",
+                    success: function (response) {
+                        var rs = JSON.parse(response);
+                        if (rs.ErrCode == 1) {
+                            //trường hợp lấy dssv thành công
+                            //console.log(rs.Data);
+                            $("#post_list").DataTable({
+                                data: rs.Data,
+                                //columns: str,
+                                columns: [
+                                    { "data": "category" },
+                                    { "data": "title" },
+                                    { "data": "script" },
+                                    { "data": "content" },
+                                    { "data": "DateCreate" },
+                                    {
+                                        //"data": "imgName",
+                                        "data": null,
+                                        render: function (data, type, row) {
+                                            //return '<img src="' + data + '" alt="Image">';
+                                            return '<img style="height: 50px; width: 75px" src="/Content/dist/picture/' + row.imgName + '">';
+                                        }
+                                    },
+                                    {
+                                        "data": null,
+                                        render: function (data, type, row) {
+                                            return '<a href="./SuaTinTuc?matin=' + row.id + '" class="btn btn-outline-warning border-0"><i class="fas fa-edit"></i></a>' + '<button type="button" onclick="Delete_obj(' + row.id + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button>';
+                                        }
+                                    }
+                                ],
+                                paging: false,
+                                info: false,
+                                searching: false,
+                                lengthChange: false,
+                                autoWidth: false,
+                                ordering: true,
+                                dom: 'Bfrtip',
+                                buttons: ['pdf', 'excel'],
+                                columnDefs: [
+                                    { orderable: false, targets: [1, 2, 3, 5, 6] }
+                                ]
+                            });
+                        }
+                        else {
+                            alert(rs.ErrDesc);
+                        }
+                    },
+                    error: function (response) {
+                        alert("Xóa tin tức thất bại");
+                    }
+                }
+            );
+        });
+    });
+
+
+
+    //$(document).ready(function () {
+    //    $.ajax({
+    //        type: "POST",
+    //        contentType: "application/json; charset=utf-8",
+    //        url: window.location.origin + '/QLTT/Search_TT',
+    //        processData: false,
+    //        contentType: false,
+    //        cache: false,
+    //        success: function (response) {
+    //            var rs = JSON.parse(response);
+
+    //            if (rs.ErrCode == 1) {
+    //                var str = "";
+    //                for (var i = 0; i < rs.Data.length; i++) {
+    //                    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td> <img style='height:50px; width:75px' src='/Content/dist/picture/" + rs.Data[i].imgName + "'></td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+    //                }
+    //                $("#tbl_data").html(str);
+    //            }
+    //            else {
+    //                alert(rs.ErrDesc);
+    //            }
+    //        },
+    //        error: function (response) {
+    //            alert("Lấy tin tức thất bại");
+    //        }
+    //    }
+    //    );
+
+    //    $("#btn_search_action").click(function () {
+    //        //alert($("#txt_search_val").val());
+    //        var search_type = $("#slc_search_type").val();
+    //        //if (!search_type) {
+    //        //    alert("Vui lòng chọn tiêu chí tìm kiếm");
+    //        //    return false;
+    //        //}
+
+    //        var formData = new FormData();
+    //        formData.append("search_val", $("#txt_search_val").val());
+    //        formData.append("search_type", search_type);
+
+    //        $.ajax(
+    //            {
+    //                type: "POST",
+    //                contentType: "application/json; charset=utf-8",
+    //                url: '/QLTT/Search_TT',
+    //                dataType: "JSON",
+    //                success: function (response) {
+    //                    var rs = JSON.parse(response);
+    //                    if (rs.ErrCode == 1) {
+    //                        //trường hợp lấy dssv thành công
+    //                        //console.log(rs.Data);
+    //                        var str = "";
+    //                        for (var i = 0; i < rs.Data.length; i++) {
+    //                            str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+    //                        }
+    //                        $("#tbl_data").html(str);
+    //                    }
+    //                    else {
+    //                        alert(rs.ErrDesc);
+    //                    }
+    //                },
+    //                error: function (response) {
+    //                    alert("Xóa tin tức thất bại");
+    //                }
+    //            }
+    //        );
+    //    });
+    //});
+
+
+
+        // Xác định các cột của DataTable
+                    //var columns = [
+                    //    { data: "category" },
+                    //    { data: "title" },
+                    //    { data: "script" },
+                    //    { data: "DateCreate" },
+                    //    { data: "imgName" },
+                    //    {
+                    //        data: null,
+                    //        render: function (data, type, row) {
+                    //            return '<a href="./SuaTinTuc?matin=' + row.id + '" class="btn btn-outline-warning border-0"><i class="fas fa-edit"></i></a>' +'<button type="button" onclick="Delete_obj(' + row.id + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button>';
+                    //        }
+                    //    }
+                    //];
+                    //var str = "";
+                    //for (var i = 0; i < rs.Data.length; i++) {
+                    //        str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+                    //}
+
+
+
+        //$.ajax(
+        //    {
+
+        //        type: "POST",
+        //        contentType: "application/json; charset=utf-8",
+        //        //url: window.location.origin + '/QLSV/get_All',
+        //        url: window.location.origin + '/QLTT/Search_TT',
+        //        processData: false,
+        //        contentType: false,
+        //        cache: false,
+        //        success: function (response) {
+        //            var rs = JSON.parse(response);
+
+        //            if (rs.ErrCode == 1) {
+        //                $("#post_list").DataTable({
+        //                    //ajax: {
+        //                    //    url: "/QLTT/Search_TT",
+        //                    //    type: "GET",
+        //                    //    datatype: "JSON"
+        //                    //},
+        //                    data: rs.Data,
+        //                    //columns: [
+        //                    //    { "data": "Danh mục" },
+        //                    //    { "data": "Tiêu đề" },
+        //                    //    { "data": "Mô tả" },
+        //                    //    { "data": "Ngày tạo" },
+        //                    //    { "data": "Ảnh đại diện" }
+        //                    //],
+        //                    paging: true,
+        //                    info: false,
+        //                    searching: false,
+        //                    lengthChange: false,
+        //                    autoWidth: false,
+        //                    ordering: true,
+        //                    dom: 'Bfrtip',
+        //                    buttons: [
+        //                        'pdf',
+        //                        'excel'
+        //                    ],
+        //                    columnDefs: [
+        //                        { targets: [0] },
+        //                        { orderable: false, targets: [1, 2, 3, 4] }
+        //                    ],
+        //                });
+        //                //trường hợp lấy dssv thành công
+        //                //console.log(rs.Data);
+        //                var str = "";
+        //                for (var i = 0; i < rs.Data.length; i++) {
+        //                    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+        //                }
+        //                //for (var i = 0; i < rs.Data.length; i++) {
+        //                //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+        //                //}
+        //                //for (var i = 0; i < rs.Data.length; i++) {
+        //                //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].content + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+        //                //}
+        //                //for (var i = 0; i < rs.Data.length; i++) {
+        //                //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td> <img src ='/picture/" + rs.Data[i].imgName + "'> </td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a><button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-danger'> <i class='fa fa-trash'></i> </button> </td > </tr > ";
+        //                //}
+        //                //for (var i = 0; i < rs.Data.length; i++) {
+        //                //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-outline-danger border-0'> <i class='fa fa-trash'></i></button> <button type='button' onclick='Delete_obj(" + rs.Data[i].id + ")' class='btn btn-outline-success border-0'> <i class='fa fa-light fa-file''></i> </button> </td> </tr>";
+        //                //}
+        //                $("#tbl_data").html(str);
+        //            }
+        //            else {
+        //                alert(rs.ErrDesc);
+        //            }
+        //        },
+        //        error: function (response) {
+        //            alert("Lấy tin tức thất bại");
+        //        }
+        //    }
+        //);
+
+
 
     //$(document).ready(function () {
     //    $.ajax(
@@ -145,84 +481,191 @@
     //    );
     //})
 
-    $(document).ready(function () {
-        $.ajax(
-            {
-                type: "POST",
-                contentType: "application/json; charset=utf-8",
-                //url: window.location.origin + '/QLSV/get_All',
-                url: window.location.origin + '/QLTT/Search_TT',
-                processData: false,
-                contentType: false,
-                cache: false,
-                success: function (response) {
-                    var rs = JSON.parse(response);
 
-                    if (rs.ErrCode == 1) {
-                        //trường hợp lấy dssv thành công
-                        //console.log(rs.Data);
-                        var str = "";
-                        //for (var i = 0; i < rs.Data.length; i++) {
-                        //    str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td> <img src ='/picture/" + rs.Data[i].imgName + "'> </td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-danger'> <i class='fa fa-trash'></i> </button> </td> </tr>";
-                        //}
-                        for (var i = 0; i < rs.Data.length; i++) {
-                            str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-outline-danger border-0'> <i class='fa fa-trash'></i> </button> </td> </tr>";
-                        }
-                        $("#tbl_data").html(str);
-                    }
-                    else {
-                        alert(rs.ErrDesc);
-                    }
-                },
-                error: function (response) {
-                    alert("Lấy tin tức thất bại");
-                }
-            }
-        );
 
-        $("#btn_search_action").click(function () {
-            //alert($("#txt_search_val").val());
-            var search_type = $("#slc_search_type").val();
-            //if (!search_type) {
-            //    alert("Vui lòng chọn tiêu chí tìm kiếm");
-            //    return false;
-            //}
+        //$("#post_list").DataTable({
+        //    ajax: {
+        //        url: "/QLTT/Search_TT",
+        //        type: "GET",
+        //        datatype: "JSON"
+        //    },
+        //    columns: [
+        //        { "data": "Danh mục" },
+        //        { "data": "Tiêu đề" },
+        //        { "data": "Mô tả" },
+        //        { "data": "Ngày tạo" },
+        //        { "data": "Ảnh đại diện" }
+        //    ],
+        //    responsive: true,
+        //    searching: false,
+        //    info: false,
+        //    lengthChange: false,
+        //    autoWidth: false,
+        //    dom: 'Bfrtip',
+        //    buttons: ['excel', 'pdf', 'colvis']
+        //});
 
-            var formData = new FormData();
-            formData.append("search_val", $("#txt_search_val").val());
-            formData.append("search_type", search_type);
+        //$("#post_list").DataTable({
+        //    ajax: {
+        //        url: "/QLTT/Search_TT",
+        //        type: "GET",
+        //        datatype: "JSON"
+        //    },
+        //    columns: [
+        //        { "data": "Danh mục" },
+        //        { "data": "Tiêu đề" },
+        //        { "data": "Mô tả" },
+        //        { "data": "Ngày tạo" },
+        //        { "data": "Ảnh đại diện" }
+        //    ],
+        //    responsive: true,
+        //    searching: false,
+        //    info: false,
+        //    lengthChange: false,
+        //    autoWidth: false,
+        //    dom: 'Bfrtip',
+        //    buttons: ['excel', 'pdf', 'colvis']
+        //}).buttons().container().appendTo('#post-list_wrapper .col-md-6:eq(0)');
 
-            $.ajax(
-                {
-                    type: "POST",
-                    data: formData,
-                    contentType: "application/json; charset=utf-8",
-                    url: window.location.origin + '/QLTT/Search_TT',
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    success: function (response) {
-                        var rs = JSON.parse(response);
 
-                        if (rs.ErrCode == 1) {
-                            //trường hợp lấy dssv thành công
-                            //console.log(rs.Data);
-                            var str = "";
-                            for (var i = 0; i < rs.Data.length; i++) {
-                                str += "<tr> <td>" + rs.Data[i].category + "</td> <td>" + rs.Data[i].title + "</td> <td>" + rs.Data[i].script + "</td> <td>" + rs.Data[i].DateCreate + "</td> <td>" + rs.Data[i].imgName + "</td> <td> <a href=' ./SuaTinTuc?matin=" + rs.Data[i].id + " ' class='btn btn-outline-warning border-0'> <i class='fas fa-edit'> </i></a> <button type='button' onclick = 'Delete_obj(" + rs.Data[i].id + ")' class = 'btn btn-outline-danger border-0'> <i class='fa fa-trash'></i> </button> </td> </tr>";
-                            }
-                            $("#tbl_data").html(str);
-                        }
-                        else {
-                            alert(rs.ErrDesc);
-                        }
-                    },
-                    error: function (response) {
-                        alert("Xóa tin tức thất bại");
-                    }
-                }
-            );
-        })
-    })
+
+        //let table = new DataTable('#post_list');
+        //table.on('click', 'tbody tr', function () {
+        //    let data = table.row(this).data();
+
+        //    alert('You clicked on ' + data[0] + "'s row");
+        //});
+
+
+
+
+
+
+
+        //$(function () {
+        //    $("#example1").DataTable({
+        //        "responsive": true, "lengthChange": false, "autoWidth": false,
+        //        "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        //    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+        //    $('#example2').DataTable({
+        //        "paging": true,
+        //        "lengthChange": false,
+        //        "searching": false,
+        //        "ordering": true,
+        //        "info": true,
+        //        "autoWidth": false,
+        //        "responsive": true,
+        //    });
+        //});
+
+    /*let table = new DataTable('#post_list');*/
+
+         //button
+        //$('#myTable').DataTable({
+        //    dom: 'Bfrtip',
+        //    buttons: [
+        //        'colvis',
+        //        'excel',
+        //        'print'
+        //    ],
+   // order: [[3, 'desc'], [0, 'asc']],
+        //});
+
+
+
+        ////ẩn, hiện  cột tự động
+        //const table = new DataTable('#example', {
+        //    paging: false,
+        //    scrollY: '200px'
+        //});
+
+        //document.querySelectorAll('a.toggle-vis').forEach((el) => {
+        //    el.addEventListener('click', function (e) {
+        //        e.preventDefault();
+
+        //        let columnIdx = e.target.getAttribute('data-column');
+        //        let column = table.column(columnIdx);
+
+        //        // Toggle the visibility
+        //        column.visible(!column.visible());
+        //    });
+        //});
+
+        ////chọn 1 dòng dữ liệu
+        //let table = new DataTable('#example');
+
+        //table.on('click', 'tbody tr', function () {
+        //    let data = table.row(this).data();
+
+        //    alert('You clicked on ' + data[0] + "'s row");
+        //});
+        //$("#post_list").DataTable({
+        //    "searching": false,
+        //    "ordering": true,
+        //    "info": false,
+        //    "dom": "Bfrtip",
+        //     columnDefs: [ //sort multi-column ordering
+        //        {
+        //            targets: [0],
+        //            orderData: [0, 1]
+        //        },
+        //        {
+        //            targets: [1],
+        //            orderData: [1, 0]
+        //        },
+        //        {
+        //            targets: [4],
+        //            orderData: [4, 0]
+        //        }
+        //    ],
+        //    order: [[3, 'desc'], [0, 'asc']],//sort default
+        //    columnDefs: [//hidden columns
+        //        {
+        //            target: 2,//chỉ số của cột
+        //            visible: false,
+        //            searchable: false
+        //        },
+        //        {
+        //            target: 3,
+        //            visible: false
+        //        }
+        //    ]
+        //});
+
+
+        //$("#post_list").DataTable({
+        //    "ajax": {
+        //        "type": "GET",
+        //        //data: formData,
+        //        "contentType": "application/json; charset=utf-8",
+        //        "url": '/QLTT/DSTT',
+        //        "datatype": "JSON"
+        //    },
+        //    "paging": true,
+        //    "lengthChange": false,
+        //    "searching": false,
+        //    "ordering": true,
+        //    "info": false,
+        //    "autoWidth": false,
+        //    "responsive": true,
+        //    "button": [
+        //        {
+        //            extend: 'docs',
+        //        },
+        //        {
+        //            extend: 'excel',
+        //        },
+        //        {
+        //            extend: 'pdf',
+        //        },
+        //        {
+        //            extend: 'colvis',
+        //        }
+        //    ]
+        //});
+
+
+
 
 </script>

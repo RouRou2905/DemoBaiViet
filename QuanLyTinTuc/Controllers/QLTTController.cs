@@ -179,7 +179,7 @@ namespace QuanLyTinTuc.Controllers
             //post baiviet = new post();
             //int Ma = baiviet.id;
             //string ID = Ma.ToString();
-            string matin = Request["txt_stt"];
+            string matin = Request["txt_id"];
 
 
             string danhmuc = Request["txt_category"];
@@ -187,7 +187,7 @@ namespace QuanLyTinTuc.Controllers
             string mota = Request["txt_key"];
 
 
-            string noidung = Request["summernote"];
+            string noidung = Request["note-editable"];
 
             HttpPostedFileBase fileImage = Request.Files["txt_image"];
             var fileName = fileImage.FileName;

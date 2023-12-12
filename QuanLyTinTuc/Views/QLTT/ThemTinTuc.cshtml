@@ -122,10 +122,14 @@
             height: 200,
         });
 
-        $(".note-editable").focusout(function () {
+        $(".note-editable").on("focusout", function () {
             $("#summernote").val($(".note-editable").text());
         });
 
+
+        //$('#summernote').summernote('enable');
+
+        
         $("#txt_image").click(function () {
             bsCustomFileInput.init();
         });
@@ -177,6 +181,7 @@
                         success: function (response) {
                             //alert(response);
                             $("#div_noft").html(response);
+                            window.location.href = "/QLTT/DSTT";
                         },
                         error: function (response) {
                             alert("Xử lý thêm mới thất bại");

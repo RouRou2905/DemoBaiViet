@@ -133,6 +133,16 @@
             //}
         });
 
+        //$(".note-editable").on("focusin", function () {
+        //    $("#summernote").val($(".note-editable").text());
+        //});
+
+        //$('#summernote').summernote('enable');
+        //$('#updateContent').click(function () {
+        //    var updatedContent = 'This is the updated content.';
+        //    $('#summernote').summernote('code', updatedContent);
+        //});
+
         //$(".note-editable").focusout(function () {
         //    $("#summernote").val($(".note-editable").text());
         //    /*console.log($(".note-editable").text());*/
@@ -141,18 +151,18 @@
         //    $("#summernote").val($(".note-editable").text());
         //});
 
-        $("#txt_image").click(function () {
-            bscustomfileinput.init();
-        });
+        //$("#txt_image").click(function () {
+        //    bscustomfileinput.init();
+        //});
 
         //function getContent() {
         //    var content = $('#summernote').summernote('code');
         //    console.log(content); // You can use 'content' as needed (e.g., sending it to the server).
         //}
 
-        $(".note-editable").focusout(function () {
-            $("#summernote") = $(".note-editable");
-        });
+        //$(".note-editable").focusout(function () {
+        //    $("#summernote") = $(".note-editable");
+        //});
         
 
         var url = new URL(window.location.href);
@@ -186,10 +196,12 @@
                         $("#txt_category").val(tt_obj.category);
                         $("#txt_title").val(tt_obj.title);
                         $("#txt_key").val(tt_obj.script);
-                        $("#summernote").val(tt_obj.content);
+                        $("txt_image").val(tt_obj.imgName);
+                        $(".note-editable").val(tt_obj.content);
                         //($("#summernote").val($(".note-editable").text())).val(tt_obj.content);
                         //$(".note-editable").val(tt_obj.content);
                         //$("#content").val(tt_obj.content);
+                        console.log("summernote");
                     }
                 },
                 error: function (response) {
@@ -236,6 +248,7 @@
                         success: function (response) {
                             //alert(response);
                             $("#div_noft").html(response);
+                            //window.location.href = "/QLTT/DSTT";
                         },
                         error: function (response) {
                             alert("Xử lý cập nhật thông tin tin tức thất bại");
